@@ -4,6 +4,8 @@ import ConfirmSignUp from '../components/formComponents/ConfirmSignUp'
 import SignIn from '../components/formComponents/SignIn'
 import Inventory from '../templates/Inventory'
 
+import { Auth } from 'aws-amplify'
+
 class Admin extends React.Component {
   state = { formState: 'signUp', isAdmin: false }
   toggleFormState = (formState) => {
@@ -11,24 +13,40 @@ class Admin extends React.Component {
   }
   async componentDidMount() {
     // check and update signed in state
+		const user = await Auth.currentAuthenticatedUser()
+		const { signInUserSession: { idToken: { payload }}} = user
+		if (payload["cognito:groups"] && payload["cognito:groups"].includes("Admin")) {
+			this.setState({ formState: 'signedIn', isAdmin: true })
+		}
   }
   signUp = async (form) => {
     const { username, email, password } = form
-    // sign up
+    // step 1: sign up
+		await Auth.signUp({
+			username, password, attributes: { email }
+		})
     this.setState({ formState: 'confirmSignUp' })
   }
   confirmSignUp = async (form) => {
     const { username, authcode } = form
-    // confirm sign up
+    // step 2: confirm sign up
+		await Auth.confirmSignUp(username, authcode)
     this.setState({ formState: 'signIn' })
   }
   signIn = async (form) => {
     const { username, password } = form
-    // signIn
-    this.setState({ formState: 'signedIn', isAdmin: true })
+    // step 3: sign in
+		await Auth.signIn(username, password)
+		// step 4: check if user is admin, if so show inventory view
+		const user = await Auth.currentAuthenticatedUser()
+		const { signInUserSession: { idToken: { payload }}} = user
+		if (payload["cognito:groups"] && payload["cognito:groups"].includes("Admin")) {
+			this.setState({ formState: 'signedIn', isAdmin: true })
+		}
   }
   signOut = async() => {
     // sign out
+		await Auth.signOut()
     this.setState({ formState: 'signUp' })
   }
 

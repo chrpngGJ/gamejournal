@@ -12,8 +12,15 @@
       "AmplifyAppId": "d3fa09k1t1i9wm"
     },
     "categories": {
+      "function": {
+        "jamstackecommerce9bcac277PostConfirmation": {
+          "GROUP": "Admin",
+          "deploymentBucketName": "amplify-jamstackecommerce-dev-203524-deployment",
+          "s3Key": "amplify-builds/jamstackecommerce9bcac277PostConfirmation-6539416470677a593858-build.zip"
+        }
+      },
       "auth": {
-        "jamstackecommerce8db5290f": {}
+        "jamstackecommerce9bcac277": {}
       }
     }
   }

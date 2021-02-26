@@ -1,9 +1,13 @@
 import React from 'react'
-import getInventory from '../../providers/inventoryProvider'
+// import getInventory from '../../providers/inventoryProvider'
 import Image from '../components/Image'
 import { Link } from 'gatsby'
 import { slugify, numberFormat } from '../../utils/helpers'
 import { FaTimes } from 'react-icons/fa'
+
+import { API, graphqlOperation } from 'aws-amplify'
+import { listProducts } from '../graphql/queries'
+import { updateProduct, deleteProduct } from '../graphql/mutations'
 
 class ViewInventory extends React.Component {
   state = {
@@ -15,8 +19,10 @@ class ViewInventory extends React.Component {
     this.fetchInventory()
   }
   fetchInventory = async() => {
-    const inventory = await getInventory()
-    this.setState({ inventory })
+    const inventoryData = await API.graphql(graphqlOperation(listProducts))
+		const { items } = inventoryData.data.listProducts
+		console.log("inventory items: ", items)
+    this.setState({ inventory: items })
   }
   editItem = (item, index) => {
     const editingIndex = index
@@ -25,11 +31,16 @@ class ViewInventory extends React.Component {
   saveItem = async index => {
     const inventory = [...this.state.inventory]
     inventory[index] = this.state.currentItem
+		const { createdAt, updatedAt, ...input } = this.state.currentItem
+		console.log(input);
     // update item in database
+		await API.graphql(graphqlOperation(updateProduct, { input }))
     this.setState({ editingIndex: null, inventory })
   }
   deleteItem = async index => {
+		const id = this.state.inventory[index].id
     const inventory = [...this.state.inventory.slice(0, index), ...this.state.inventory.slice(index + 1)]
+		await API.graphql(graphqlOperation(deleteProduct, { input: { id }}))
     this.setState({ inventory })
   }
   onChange = event => {

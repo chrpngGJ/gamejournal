@@ -1,8 +1,8 @@
 {
-    "identityPoolName": "jamstackecommerce8db5290f_identitypool_8db5290f",
-    "allowUnauthenticatedIdentities": false,
-    "resourceNameTruncated": "jamsta8db5290f",
-    "userPoolName": "jamstackecommerce8db5290f_userpool_8db5290f",
+    "identityPoolName": "jamstackecommerce9bcac277_identitypool_9bcac277",
+    "allowUnauthenticatedIdentities": true,
+    "resourceNameTruncated": "jamsta9bcac277",
+    "userPoolName": "jamstackecommerce9bcac277_userpool_9bcac277",
     "autoVerifiedAttributes": [
         "email"
     ],
@@ -20,7 +20,7 @@
     "requiredAttributes": [
         "email"
     ],
-    "userpoolClientGenerateSecret": true,
+    "userpoolClientGenerateSecret": false,
     "userpoolClientRefreshTokenValidity": 30,
     "userpoolClientWriteAttributes": [
         "email"
@@ -28,10 +28,10 @@
     "userpoolClientReadAttributes": [
         "email"
     ],
-    "userpoolClientLambdaRole": "jamsta8db5290f_userpoolclient_lambda_role",
+    "userpoolClientLambdaRole": "jamsta9bcac277_userpoolclient_lambda_role",
     "userpoolClientSetAttributes": false,
-    "sharedId": "8db5290f",
-    "resourceName": "jamstackecommerce8db5290f",
+    "sharedId": "9bcac277",
+    "resourceName": "jamstackecommerce9bcac277",
     "authSelections": "identityPoolAndUserPool",
     "authRoleArn": {
         "Fn::GetAtt": [
@@ -46,13 +46,25 @@
         ]
     },
     "useDefault": "default",
-    "triggers": "{}",
+    "triggers": "{\n  \"PostConfirmation\": [\n    \"add-to-group\"\n  ]\n}",
     "userPoolGroupList": [],
     "serviceName": "Cognito",
     "usernameCaseSensitive": false,
     "parentStack": {
         "Ref": "AWS::StackId"
     },
-    "permissions": [],
-    "dependsOn": []
+    "permissions": [
+        "{\n  \"policyName\": \"AddToGroupCognito\",\n  \"trigger\": \"PostConfirmation\",\n  \"effect\": \"Allow\",\n  \"actions\": [\n    \"cognito-idp:AdminAddUserToGroup\",\n    \"cognito-idp:GetGroup\",\n    \"cognito-idp:CreateGroup\"\n  ],\n  \"resource\": {\n    \"paramType\": \"!GetAtt\",\n    \"keys\": [\n      \"UserPool\",\n      \"Arn\"\n    ]\n  }\n}"
+    ],
+    "dependsOn": [
+        {
+            "category": "function",
+            "resourceName": "jamstackecommerce9bcac277PostConfirmation",
+            "triggerProvider": "Cognito",
+            "attributes": [
+                "Arn",
+                "Name"
+            ]
+        }
+    ]
 }
